@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diário Escolar Offline</title>
+<style>
+:root{--green:#385c45;--green2:#52765d;--orange:#d98b45;--cream:#f7f1e5;--paper:#fffdf8;--ink:#26332a;--muted:#68736b;--line:#e4dfd4;--red:#b84b45;--blue:#47749b;--shadow:0 8px 24px #26332a12}
+*{box-sizing:border-box}body{margin:0;background:#f2f0e9;color:var(--ink);font:15px/1.45 "Segoe UI",Arial,sans-serif}
+button,input,select,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:9px;padding:10px 14px;background:var(--green);color:white;font-weight:600}button:hover{filter:brightness(1.06)}button.secondary{background:#e9eee9;color:var(--green)}button.warn{background:#fff0e8;color:#9b4c2d}button.danger{background:#fae9e7;color:#9e3934}button.small{padding:6px 9px;font-size:13px}
+header{background:var(--green);color:white;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;box-shadow:var(--shadow)}
+.brand{display:flex;align-items:center;gap:12px}.brand-mark{width:42px;height:42px;border-radius:12px;background:#ffffff20;display:grid;place-items:center;font-size:22px}.brand h1{font-size:20px;margin:0}.brand p{margin:2px 0 0;color:#e1e9e1;font-size:12px}.header-actions{display:flex;gap:8px;flex-wrap:wrap}.header-actions button{background:#ffffff1c;border:1px solid #ffffff35}
+.app{max-width:1440px;margin:auto;padding:22px;display:grid;grid-template-columns:230px 1fr;gap:20px}.sidebar{background:var(--paper);border:1px solid var(--line);border-radius:15px;padding:12px;height:max-content;position:sticky;top:15px}.navbtn{width:100%;text-align:left;background:transparent;color:var(--ink);padding:12px;border-radius:9px;margin:2px 0;font-weight:600}.navbtn span{display:inline-block;width:25px;color:var(--green)}.navbtn.active{background:#e8efe8;color:var(--green)}.side-note{border-top:1px solid var(--line);margin-top:12px;padding:12px 8px 4px;color:var(--muted);font-size:12px}
+main{min-width:0}.page{display:none}.page.active{display:block}.page-title{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin:2px 0 18px}.page-title h2{margin:0;font-size:24px;color:var(--green)}.page-title p{margin:4px 0 0;color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}.stat,.panel{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow)}.stat .label{font-size:12px;color:var(--muted)}.stat strong{display:block;font-size:28px;color:var(--green);margin-top:4px}.panel{margin-bottom:16px}.panel h3{margin:0 0 12px;color:var(--green);font-size:17px}.toolbar{display:flex;gap:9px;flex-wrap:wrap;align-items:end;margin-bottom:14px}.field{display:flex;flex-direction:column;gap:5px;min-width:140px;flex:1}.field label{font-size:12px;color:var(--muted);font-weight:700}.field input,.field select,.field textarea,input.cell-input,select.cell-input{border:1px solid #d9d7ce;border-radius:8px;padding:9px 10px;background:white;color:var(--ink);min-width:0}.field textarea{min-height:72px;resize:vertical}.field input:focus,.field select:focus,.field textarea:focus{outline:2px solid #b8cbb9;border-color:var(--green)}
+.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:10px;background:white}table{width:100%;border-collapse:collapse;min-width:620px}th,td{padding:9px 10px;border-bottom:1px solid #eeeae1;text-align:left;vertical-align:middle}th{background:#edf1eb;color:var(--green);font-size:12px;position:sticky;top:0;z-index:1}tr:last-child td{border-bottom:0}td.num,th.num{text-align:center}.muted{color:var(--muted)}.empty{padding:26px;text-align:center;color:var(--muted)}
+.badge{display:inline-block;padding:3px 8px;border-radius:99px;background:#edf1eb;color:var(--green);font-size:12px;font-weight:700}.status-pres{background:#e1f0e2;color:#286238}.status-f{background:#f9e3e1;color:#9e3934}.status-plus{background:#e1edf7;color:#315f87}.status-minus{background:#fcebdc;color:#9b5727}.status-half{background:#fff2cc;color:#866718}
+.inline-actions{display:flex;gap:6px;flex-wrap:wrap}.notice{padding:11px 13px;background:#f1f5ef;border-left:4px solid var(--green2);border-radius:8px;color:#435448;font-size:13px;margin:10px 0 14px}.notice.warn{background:#fff4e9;border-color:var(--orange);color:#744a28}
+.attendance-grid{min-width:900px}.attendance-grid input{width:100%;min-width:72px;padding:7px 5px;text-align:center;border:1px solid #e2dfd6;border-radius:6px}.attendance-grid .namecell{min-width:180px;font-weight:600}.attendance-grid th .lesson-header-content{display:block;max-width:180px;margin:4px auto 0;white-space:normal;overflow-wrap:anywhere;font-weight:500;color:#424b43;line-height:1.25}.lesson-eval-toggle{display:inline-flex;align-items:center;gap:5px;margin:5px auto 2px;font-size:11px;font-weight:600;white-space:nowrap}.lesson-eval-toggle input{width:auto;min-width:0;margin:0;accent-color:var(--green)}.lesson-eval-yes{color:#286238}.attendance-grid th.namecell,.attendance-grid td.namecell{position:sticky;left:0;z-index:2;background:#fff}.attendance-grid th.namecell{z-index:4;background:#edf1eb}.attendance-grid .content-row td:first-child{position:sticky;left:0;z-index:2;background:#fbf6eb;min-width:180px}.attendance-grid .content-row td{background:#fbf6eb}.attendance-grid .content-row td:first-child{font-weight:700;color:#8a673e}.attendance-grid select{width:100%;padding:7px 3px;border:1px solid #ddd;border-radius:6px;background:white}.mark-btn{width:42px;min-width:42px;padding:8px 4px;border:1px solid #d8ded7;background:#f4f6f2;color:#506052;font-weight:800}.mark-btn.empty{background:#fff;color:#a0a69f}.mark-btn.code-pres{background:#e1f0e2;color:#286238;border-color:#c4dfc7}.mark-btn.code-f{background:#f9e3e1;color:#9e3934;border-color:#edc7c3}.mark-btn.code-plus{background:#e1edf7;color:#315f87;border-color:#c5d9ea}.mark-btn.code-minus{background:#fcebdc;color:#9b5727;border-color:#f1d4b7}.mark-btn.code-half{background:#fff2cc;color:#866718;border-color:#eadb9d}.grade-input{width:110px;text-align:center}
+.modal-backdrop{position:fixed;inset:0;background:#17231dcc;display:none;align-items:center;justify-content:center;padding:18px;z-index:20}.modal-backdrop.show{display:flex}.modal{background:var(--paper);border-radius:15px;padding:20px;width:min(560px,100%);max-height:90vh;overflow:auto;box-shadow:0 20px 60px #0003}.modal h3{margin:0 0 15px;color:var(--green)}.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:0 20px 22px}
+@media(max-width:850px){.app{grid-template-columns:1fr;padding:12px}.sidebar{position:static;display:grid;grid-template-columns:repeat(3,1fr);gap:3px}.navbtn{font-size:13px;padding:9px}.side-note{display:none}.cards{grid-template-columns:repeat(2,1fr)}header{padding:14px;align-items:flex-start;flex-direction:column}.page-title{flex-direction:column}.modal-grid{grid-template-columns:1fr}}
+@media print{header,.sidebar,.header-actions,.no-print,footer{display:none!important}.app{display:block;padding:0}.page{display:none!important}.page.active{display:block!important}.panel,.stat{box-shadow:none;break-inside:avoid}.table-wrap{overflow:visible}table{min-width:0;font-size:10px}th{position:static}body{background:white}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="brand-mark">📘</div><div><h1>Diário Escolar</h1><p>Ensino Fundamental · Ano letivo 2026 · Funcionamento offline</p></div></div>
+  <div class="header-actions">
+    <button onclick="exportBackup()">⬇ Backup</button>
+    <button onclick="document.getElementById('importFile').click()">⬆ Restaurar</button>
+    <input id="importFile" type="file" accept=".json,application/json" hidden onchange="importBackup(event)">
+  </div>
+</header>
+<div class="app">
+  <nav class="sidebar">
+    <button class="navbtn active" data-page="inicio" onclick="showPage('inicio',this)"><span>⌂</span> Visão geral</button>
+    <button class="navbtn" data-page="estudantes" onclick="showPage('estudantes',this)"><span>♙</span> Estudantes</button>
+    <button class="navbtn" data-page="diario" onclick="showPage('diario',this)"><span>▦</span> Diário de aulas</button>
+    <button class="navbtn" data-page="avaliacoes" onclick="showPage('avaliacoes',this)"><span>✓</span> Avaliações</button>
+    <button class="navbtn" data-page="notas" onclick="showPage('notas',this)"><span>★</span> Notas e médias</button>
+    <button class="navbtn" data-page="relatorios" onclick="showPage('relatorios',this)"><span>▤</span> Relatórios</button>
+    <button class="navbtn" data-page="configuracoes" onclick="showPage('configuracoes',this)"><span>⚙</span> Configurações</button>
+    <div class="side-note">Os dados ficam salvos neste navegador e neste computador. Faça backups regularmente.</div>
+  </nav>
+  <main>
+    <section id="page-inicio" class="page active">
+      <div class="page-title"><div><h2>Visão geral</h2><p>Resumo do seu diário escolar.</p></div><span class="badge">Inglês · 2026</span></div>
+      <div class="cards" id="stats"></div>
+      <div class="panel"><h3>Acesso rápido às turmas</h3><div class="toolbar" id="classQuick"></div><div class="notice">Comece cadastrando os estudantes. Depois, registre as aulas e as avaliações. O sistema organiza os dados por turma.</div></div>
+      <div class="panel"><h3>Últimas atividades avaliativas</h3><div id="recentAssessments"></div></div>
+    </section>
+    <section id="page-estudantes" class="page">
+      <div class="page-title"><div><h2>Estudantes</h2><p>Cadastre, edite ou transfira estudantes entre turmas.</p></div></div>
+      <div class="panel">
+        <h3>Cadastro rápido de estudantes</h3>
+        <form class="toolbar" onsubmit="includeStudent(event)" style="margin-bottom:0;align-items:end">
+          <div class="field" style="flex:2"><label for="newStudentName">Nome completo</label><input id="newStudentName" name="name" required maxlength="100" placeholder="Digite o nome do estudante"></div>
+          <div class="field"><label for="newStudentClass">Turma</label><select id="newStudentClass" name="class" required><option value="">Selecione a turma...</option><option value="4º ano">4º ano</option><option value="5º ano">5º ano</option><option value="6º ano">6º ano</option><option value="7º ano">7º ano</option><option value="8º ano B">8º ano B</option><option value="8º ano C">8º ano C</option><option value="9º ano">9º ano</option></select></div>
+          <button type="submit">＋ Incluir estudante</button>
+        </form>
+        <div class="notice">Preencha o nome, escolha a turma e clique em <b>Incluir estudante</b>. O formulário ficará pronto para o próximo cadastro.</div>
+      </div>
+      <div class="toolbar"><div class="field"><label>Filtrar turma</label><select id="studentFilter" onchange="renderStudents()"><option value="">Todas as turmas</option></select></div><div class="field"><label>Buscar nome</label><input id="studentSearch" placeholder="Digite parte do nome" oninput="renderStudents()"></div></div>
+      <div class="panel"><div id="studentsTable"></div></div>
+    </section>
+    <section id="page-diario" class="page">
+      <div class="page-title"><div><h2>Diário de aulas</h2><p>Uma coluna por aula; estudantes nas linhas.</p></div><button onclick="addLesson()">＋ Nova aula</button></div>
+      <div class="panel">
+        <div class="toolbar"><div class="field"><label>Turma</label><select id="diaryClass" onchange="renderDiary()"></select></div><div class="field"><label>Etapa do ano letivo</label><select id="diaryPeriod" onchange="renderDiary()"><option value="">Todas as etapas</option></select></div><button class="secondary" type="button" onclick="exportDiarySheet()">⇩ Exportar planilha</button></div>
+        <div class="notice">Chamada rápida: clique no botão de cada estudante para alternar entre <b>.</b> presença → <b>f</b> falta → <b>+</b> atividade avaliativa → <b>-</b> não fez → <b>~</b> metade do ponto → vazio. O conteúdo fica logo abaixo da data.</div>
+        <div id="diaryTable"></div>
+      </div>
+    </section>
+    <section id="page-avaliacoes" class="page">
+      <div class="page-title"><div><h2>Avaliações</h2><p>Cadastre a atividade uma vez; ela ficará vinculada à turma escolhida.</p></div><div class="inline-actions"><button class="secondary" onclick="exportAssessmentsSheet()">⇩ Exportar planilha</button><button onclick="openAssessmentModal()">＋ Nova avaliação</button></div></div>
+      <div class="panel"><div class="toolbar"><div class="field"><label>Filtrar turma</label><select id="assessmentFilter" onchange="renderAssessments()"><option value="">Todas as turmas</option></select></div><div class="field"><label>Etapa</label><select id="assessmentPeriodFilter" onchange="renderAssessments()"><option value="">Todas as etapas</option></select></div></div><div id="assessmentsTable"></div></div>
+    </section>
+    <section id="page-notas" class="page">
+      <div class="page-title"><div><h2>Notas e médias</h2><p>Escolha uma avaliação ou use “Lançar notas” diretamente na lista de avaliações.</p></div></div>
+      <div class="panel"><div class="toolbar"><div class="field"><label>Turma</label><select id="gradesClass" onchange="renderGrades()"></select></div><div class="field"><label>Avaliação</label><select id="gradesAssessment" onchange="renderGrades()"></select></div></div><div id="gradesTable"></div></div>
+    </section>
+    <section id="page-relatorios" class="page">
+      <div class="page-title"><div><h2>Relatórios</h2><p>Frequência e desempenho por estudante ou turma.</p></div><div class="inline-actions"><button class="secondary" onclick="exportReportsSheet()">⇩ Exportar planilha</button><button class="secondary" onclick="window.print()">Imprimir / Salvar PDF</button></div></div>
+      <div class="panel"><div class="toolbar"><div class="field"><label>Turma</label><select id="reportClass" onchange="renderReports()"></select></div></div><div id="reportsTable"></div></div>
+    </section>
+    <section id="page-configuracoes" class="page">
+      <div class="page-title"><div><h2>Configurações acadêmicas</h2><p>Defina o regime de avaliação e a pontuação de cada período.</p></div></div>
+      <div class="panel">
+        <h3>Regime de avaliação</h3>
+        <form id="periodSettingsForm" onsubmit="savePeriodSettings(event)">
+          <div class="toolbar"><div class="field"><label>Organização do ano letivo</label><select id="periodType" name="periodType" onchange="renderPeriodValueFields()"><option value="bimestral">Bimestral (4 períodos)</option><option value="trimestral">Trimestral (3 períodos)</option></select></div></div>
+          <div class="notice">A média mínima será calculada automaticamente como 60% do valor total de cada período. Resultados abaixo desse limite serão classificados como recuperação quando todas as avaliações do período estiverem lançadas.</div>
+          <div id="periodValueFields" class="toolbar"></div>
+          <div class="modal-actions"><button type="submit">Salvar configurações</button></div>
+        </form>
+      </div>
+      <div class="panel" style="margin-top:18px">
+        <h3>Avaliação automática: Participação</h3>
+        <p class="muted">Defina um valor independente para cada bimestre ou trimestre. Os valores serão aplicados a todas as turmas, mas podem ser diferentes entre os períodos.</p>
+        <form onsubmit="saveParticipationSettings(event)">
+          <div id="participationValueFieldsSettings" class="toolbar"></div>
+          <div class="notice">Em cada turma e período, o sistema divide o valor daquele período pela quantidade de aulas marcadas como avaliativas. Cada “+” vale a cota integral, cada “~” vale metade e “−” vale zero.</div>
+          <div class="modal-actions"><button type="submit">Salvar valores da participação</button></div>
+        </form>
+      </div>
+      <div class="panel" style="margin-top:18px">
+        <h3>Gerenciar turmas</h3>
+        <p class="muted">Cadastre novas turmas quando assumir outras classes ou iniciar um novo ano letivo. As turmas cadastradas aparecerão automaticamente nos formulários e filtros.</p>
+        <form onsubmit="addClass(event)">
+          <div class="toolbar"><div class="field"><label>Nome da nova turma</label><input id="newClassName" name="className" maxlength="60" required placeholder="Ex.: 6º ano A"></div><button type="submit">＋ Criar turma</button></div>
+        </form>
+        <div id="classesManager"></div>
+      </div>
+    </section>
+  </main>
+</div>
+<footer>Diário Escolar Offline · Os dados permanecem neste navegador. Exporte um backup para proteger seus registros.</footer>
+
+<div class="modal-backdrop" id="modalBackdrop" onclick="if(event.target===this)closeModal()"><div class="modal"><div id="modalContent"></div></div></div>
+<script>
+const DEFAULT_CLASSES=["4º ano","5º ano","6º ano","7º ano","8º ano B","8º ano C","9º ano"];
+let CLASSES=[...DEFAULT_CLASSES];
+const CODES={".":"Presença","f":"Falta","+":"Atividade avaliativa","-":"Não fez","~":"Metade do ponto diário"};
+const KEY="diario_escolar_offline_v1";
+let db=loadDB();
+function emptyDB(){return {students:[],lessons:[],assessments:[],grades:{},settings:{discipline:"Inglês",year:2026,periodType:"bimestral",periodValues:["","","",""],participationValue:0,classes:[...DEFAULT_CLASSES]}}}
+function loadDB(){try{const x=JSON.parse(localStorage.getItem(KEY));if(!x||!x.students)return emptyDB();x.settings=x.settings||{};if(!x.settings.periodType)x.settings.periodType="bimestral";if(!Array.isArray(x.settings.periodValues))x.settings.periodValues=["","","",""];if(!Number.isFinite(Number(x.settings.participationValue)))x.settings.participationValue=0;const periodsNow=x.settings.periodType==="trimestral"?3:4;if(!Array.isArray(x.settings.participationValues)){x.settings.participationValues=Array(periodsNow).fill(Number(x.settings.participationValue)||0)}else{x.settings.participationValues=Array.from({length:periodsNow},(_,i)=>{const v=Number(x.settings.participationValues[i]??0);return Number.isFinite(v)&&v>=0?v:0})}x.settings.participationValue=Number(x.settings.participationValues[0]||0);if(!Array.isArray(x.settings.classes)||!x.settings.classes.length)x.settings.classes=[...DEFAULT_CLASSES];x.settings.classes=[...new Set(x.settings.classes.map(c=>String(c).trim()).filter(Boolean))];CLASSES=[...x.settings.classes];x.assessments=(x.assessments||[]).map(a=>({...a,period:Number(a.period)||1}));x.lessons=(x.lessons||[]).map(l=>({...l,period:Number(l.period)||1}));return x}catch(e){return emptyDB()}}
+function saveDB(){localStorage.setItem(KEY,JSON.stringify(db));renderAll()}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function id(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function dateBR(s){if(!s)return "";const [y,m,d]=s.split("-");return `${d}/${m}/${y}`}
+function classOptions(selected=""){return `<option value="">Selecione...</option>`+CLASSES.map(c=>`<option ${c===selected?"selected":""} value="${esc(c)}">${esc(c)}</option>`).join("")}
+function selectClass(id,selected=""){const el=document.getElementById(id);if(el)el.innerHTML=classOptions(selected)}
+function showPage(name,btn){document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));document.getElementById("page-"+name).classList.add("active");document.querySelectorAll(".navbtn").forEach(b=>b.classList.toggle("active",b.dataset.page===name));if(name==="diario")renderDiary();if(name==="notas")renderGrades();if(name==="relatorios")renderReports();if(name==="configuracoes"){renderPeriodSettings();renderClassesManager()}}
+function renderAll(){renderSelects();renderHome();renderStudents();renderDiary();renderAssessments();renderGrades();renderReports();renderPeriodSettings();renderClassesManager()}
+function renderSelects(){
+  const configs=[["diaryClass",db.students[0]?.class||CLASSES[0]],["gradesClass",db.students[0]?.class||CLASSES[0]],["reportClass",db.students[0]?.class||CLASSES[0]],["newStudentClass",CLASSES[0]]];
+  configs.forEach(([id,v])=>selectClass(id,document.getElementById(id)?.value||v));
+  const sf=document.getElementById("studentFilter");if(sf){const v=sf.value;sf.innerHTML='<option value="">Todas as turmas</option>'+CLASSES.map(c=>`<option ${v===c?"selected":""}>${esc(c)}</option>`).join("")}
+  const af=document.getElementById("assessmentFilter");if(af){const v=af.value;af.innerHTML='<option value="">Todas as turmas</option>'+CLASSES.map(c=>`<option ${v===c?"selected":""}>${esc(c)}</option>`).join("")}
+  const ap=document.getElementById("assessmentPeriodFilter");if(ap){const v=ap.value;ap.innerHTML='<option value="">Todas as etapas</option>'+Array.from({length:periodCount()},(_,i)=>`<option value="${i+1}">${periodLabel(i+1)}</option>`).join("");if([...ap.options].some(o=>o.value===v))ap.value=v}
+  const dp=document.getElementById("diaryPeriod");if(dp){const old=dp.value;dp.innerHTML='<option value="">Todas as etapas</option>'+Array.from({length:periodCount()},(_,i)=>`<option value="${i+1}">${periodLabel(i+1)}</option>`).join("");if([...dp.options].some(o=>o.value===old))dp.value=old}
+  renderGradeAssessmentSelect();
+}
+function renderGradeAssessmentSelect(){const cl=document.getElementById("gradesClass")?.value||CLASSES[0],el=document.getElementById("gradesAssessment");if(!el)return;const old=el.value;const list=db.assessments.filter(a=>a.class===cl);el.innerHTML=(list.length?list.map(a=>`<option value="${a.id}">${esc(a.name)} (${dateBR(a.date)}) · ${a.value} pts</option>`).join(""):'<option value="">Nenhuma avaliação cadastrada</option>')+`<option value="__participation__">Participação (calculada automaticamente)</option>`;if(list.some(a=>a.id===old)||old==="__participation__")el.value=old}
+function renderHome(){
+ const total=db.students.length, lessons=db.lessons.length, assessments=db.assessments.length;
+ document.getElementById("stats").innerHTML=[["Estudantes",total],["Turmas com estudantes",new Set(db.students.map(s=>s.class)).size],["Aulas registradas",lessons],["Avaliações",assessments]].map(([l,v])=>`<div class="stat"><div class="label">${l}</div><strong>${v}</strong></div>`).join("");
+ document.getElementById("classQuick").innerHTML=CLASSES.map(c=>`<button class="secondary" onclick="document.getElementById('diaryClass').value='${c}';showPage('diario')">${c} <small>(${db.students.filter(s=>s.class===c).length})</small></button>`).join("");
+ const recent=[...db.assessments].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
+ document.getElementById("recentAssessments").innerHTML=recent.length?`<div class="table-wrap"><table><tr><th>Atividade</th><th>Turma</th><th>Data</th><th>Valor</th></tr>${recent.map(a=>`<tr><td>${esc(a.name)}</td><td>${esc(a.class)}</td><td>${dateBR(a.date)}</td><td>${a.value} pts</td></tr>`).join("")}</table></div>`:'<div class="empty">Nenhuma avaliação cadastrada.</div>';
+}
+function openModal(html){document.getElementById("modalContent").innerHTML=html;document.getElementById("modalBackdrop").classList.add("show")}
+function closeModal(){document.getElementById("modalBackdrop").classList.remove("show")}
+function openObservationsModal(type,recordId){
+ const collections={student:db.students,lesson:db.lessons,assessment:db.assessments};
+ const record=collections[type]?.find(x=>x.id===recordId);if(!record)return;
+ const labels={student:"estudante",lesson:"aula",assessment:"atividade avaliativa"};
+ openModal(`<h3>Observações · ${labels[type]}</h3><p class="muted" style="margin-top:-8px">Estas informações ficam guardadas no registro e só aparecem quando você abrir este campo.</p><form onsubmit="saveObservations(event,'${type}','${recordId}')"><div class="field"><label>Observações</label><textarea name="observations" rows="6" maxlength="3000" placeholder="Digite aqui suas observações...">${esc(record.observations||"")}</textarea></div><div class="modal-actions"><button type="button" class="secondary" onclick="closeModal()">Cancelar</button><button type="submit">Salvar observações</button></div></form>`);
+}
+function saveObservations(e,type,recordId){
+ e.preventDefault();const collections={student:db.students,lesson:db.lessons,assessment:db.assessments};
+ const record=collections[type]?.find(x=>x.id===recordId);if(!record)return;
+ record.observations=new FormData(e.target).get("observations").trim();
+ closeModal();saveDB();
+}
+function includeStudent(e){
+ e.preventDefault();const form=e.target,name=form.elements.name.value.trim(),cl=form.elements.class.value;
+ if(!name||!cl)return;
+ const duplicate=db.students.find(s=>s.class===cl&&s.name.toLowerCase()===name.toLowerCase());
+ if(duplicate){alert("Esse estudante já está cadastrado nessa turma.");document.getElementById("newStudentName").focus();return}
+ db.students.push({id:id(),name,class:cl});saveDB();form.reset();document.getElementById("newStudentClass").value=cl;document.getElementById("newStudentName").focus();
+}
+function openStudentModal(studentId=null){
+ const s=db.students.find(x=>x.id===studentId);if(!s)return;
+ openModal(`<h3>Editar estudante</h3><form onsubmit="saveStudent(event,'${studentId}')"><div class="field"><label>Nome completo</label><input name="name" required maxlength="100" value="${esc(s.name)}" autofocus></div><div class="field" style="margin-top:12px"><label>Turma</label><select name="class" required>${classOptions(s.class)}</select></div><div class="modal-actions"><button type="button" class="secondary" onclick="closeModal()">Cancelar</button><button type="submit">Salvar alterações</button></div></form>`);
+}
+function saveStudent(e,studentId){e.preventDefault();const f=new FormData(e.target),name=f.get("name").trim(),cl=f.get("class");if(!name||!cl)return;const duplicate=db.students.find(s=>s.id!==studentId&&s.class===cl&&s.name.toLowerCase()===name.toLowerCase());if(duplicate){alert("Já existe um estudante com esse nome nessa turma.");return}if(studentId){const s=db.students.find(x=>x.id===studentId);s.name=name;s.class=cl}else db.students.push({id:id(),name,class:cl});closeModal();saveDB()}
+function renderStudents(){const root=document.getElementById("studentsTable");if(!root)return;const cl=document.getElementById("studentFilter")?.value||"",q=(document.getElementById("studentSearch")?.value||"").toLowerCase();const list=db.students.filter(s=>(!cl||s.class===cl)&&s.name.toLowerCase().includes(q)).sort((a,b)=>a.class.localeCompare(b.class)||a.name.localeCompare(b.name));root.innerHTML=list.length?`<div class="table-wrap"><table><tr><th>Estudante</th><th>Turma</th><th>Observações e ações</th></tr>${list.map(s=>`<tr><td>${esc(s.name)}</td><td>${esc(s.class)}</td><td><div class="inline-actions"><button class="small secondary" onclick="openObservationsModal('student','${s.id}')">Observações${s.observations?' •':''}</button><button class="small secondary" onclick="openStudentModal('${s.id}')">Editar</button><button class="small danger" onclick="deleteStudent('${s.id}')">Excluir</button></div></td></tr>`).join("")}</table></div>`:'<div class="empty">Nenhum estudante encontrado. Use o formulário acima para incluir o primeiro estudante.</div>'}
+function deleteStudent(studentId){const s=db.students.find(x=>x.id===studentId);if(!s)return;if(!confirm(`Excluir ${s.name}? Os registros de aulas e notas desse estudante também serão removidos.`))return;db.students=db.students.filter(x=>x.id!==studentId);db.lessons.forEach(l=>delete l.attendance[studentId]);Object.keys(db.grades).forEach(k=>delete db.grades[k][studentId]);saveDB()}
+function renderClassesManager(){
+ const root=document.getElementById("classesManager");if(!root)return;
+ root.innerHTML=CLASSES.length?`<div class="table-wrap"><table><tr><th>Turma</th><th>Estudantes</th><th>Ações</th></tr>${CLASSES.map(cl=>`<tr><td>${esc(cl)}</td><td>${db.students.filter(s=>s.class===cl).length}</td><td><button class="small danger" onclick="removeClass('${esc(cl).replace(/'/g,"\\\\'")}')">Remover turma</button></td></tr>`).join("")}</table></div>`:'<div class="empty">Nenhuma turma cadastrada.</div>';
+}
+function addClass(e){
+ e.preventDefault();const form=e.target,name=String(new FormData(form).get("className")||"").trim();
+ if(!name)return;
+ if(CLASSES.some(c=>c.toLocaleLowerCase("pt-BR")===name.toLocaleLowerCase("pt-BR"))){alert("Essa turma já está cadastrada.");return}
+ CLASSES.push(name);db.settings.classes=[...CLASSES];saveDB();form.reset();document.getElementById("newClassName")?.focus();
+}
+function removeClass(name){
+ if(CLASSES.length<=1){alert("É necessário manter pelo menos uma turma cadastrada.");return}
+ const students=db.students.filter(s=>s.class===name).length;
+ const lessons=db.lessons.filter(l=>l.class===name).length;
+ const assessments=db.assessments.filter(a=>a.class===name).length;
+ const details=`\\n\\nEsta turma possui ${students} estudante(s), ${lessons} aula(s) e ${assessments} avaliação(ões).`;
+ if(!confirm(`Remover a turma "${name}"?${details}\\n\\nA remoção também excluirá os estudantes, aulas, presenças, avaliações, notas e observações vinculados a ela. Faça um backup antes de continuar.`))return;
+ const studentIds=db.students.filter(s=>s.class===name).map(s=>s.id);
+ const assessmentIds=db.assessments.filter(a=>a.class===name).map(a=>a.id);
+ db.students=db.students.filter(s=>s.class!==name);
+ db.lessons=db.lessons.filter(l=>l.class!==name);
+ db.assessments=db.assessments.filter(a=>a.class!==name);
+ studentIds.forEach(sid=>Object.keys(db.grades).forEach(aid=>{if(db.grades[aid])delete db.grades[aid][sid]}));
+ assessmentIds.forEach(aid=>delete db.grades[aid]);
+ CLASSES=CLASSES.filter(c=>c!==name);db.settings.classes=[...CLASSES];saveDB();
+}
+function periodCount(){return db.settings.periodType==="trimestral"?3:4}
+function periodLabel(n){return (db.settings.periodType==="trimestral"?"Trimestre ":"Bimestre ")+n}
+function periodOptions(selected=1){return Array.from({length:periodCount()},(_,i)=>`<option value="${i+1}" ${Number(selected)===i+1?"selected":""}>${periodLabel(i+1)}</option>`).join("")}
+function getParticipationValue(period){const vals=db.settings.participationValues||[];return Number(vals[Number(period)-1]??0)||0}
+function renderParticipationValueFields(rootId){const root=document.getElementById(rootId);if(!root)return;const selectedType=document.getElementById("periodType")?.value||db.settings.periodType||"bimestral",count=selectedType==="trimestral"?3:4,label=selectedType==="trimestral"?"trimestre":"bimestre";root.innerHTML=Array.from({length:count},(_,i)=>`<div class="field" style="min-width:150px;max-width:220px"><label>Participação · ${label} ${i+1} (pontos)</label><input type="number" name="participationValue${i+1}" min="0" step="0.01" required value="${getParticipationValue(i+1)}" placeholder="Ex.: 5,00"></div>`).join("")}
+function renderPeriodSettings(){const type=document.getElementById("periodType");if(!type)return;type.value=db.settings.periodType||"bimestral";renderPeriodValueFields();renderParticipationValueFields("participationValueFieldsSettings")}
+function saveParticipationSettings(e){e.preventDefault();const f=new FormData(e.target),count=(document.getElementById("periodType")?.value||db.settings.periodType)==="trimestral"?3:4,values=[];for(let i=1;i<=count;i++){const raw=String(f.get(`participationValue${i}`)??"0").trim().replace(",",".");const v=Number(raw);if(!Number.isFinite(v)||v<0){alert(`Informe um valor válido para a participação do período ${i}.`);return}values.push(v)}db.settings.participationValues=values;db.settings.participationValue=Number(values[0]||0);saveDB();alert("Valores da participação salvos por período e aplicados a todas as turmas.")}
+function renderPeriodValueFields(){const type=document.getElementById("periodType"),root=document.getElementById("periodValueFields");if(!type||!root)return;const count=type.value==="trimestral"?3:4;const vals=db.settings.periodValues||[];root.innerHTML=Array.from({length:count},(_,i)=>`<div class="field"><label>Valor total do ${type.value==="trimestral"?"trimestre":"bimestre"} ${i+1}</label><input type="number" name="periodValue${i+1}" min="0.01" step="0.01" required value="${vals[i]??""}" placeholder="Ex.: 25"><small class="muted">Média mínima: 60% do total</small></div>`).join("");renderParticipationValueFields("participationValueFieldsSettings")}
+function savePeriodSettings(e){e.preventDefault();const f=new FormData(e.target),type=f.get("periodType"),count=type==="trimestral"?3:4,values=[];for(let i=1;i<=count;i++){const v=Number(f.get(`periodValue${i}`));if(!Number.isFinite(v)||v<=0){alert(`Informe um valor válido para o período ${i}.`);return}values.push(v)}db.settings.periodType=type;db.settings.periodValues=values;db.assessments.forEach(a=>{if(a.period>count)a.period=count});db.lessons.forEach(l=>{if((Number(l.period)||1)>count)l.period=count});saveDB();alert("Configurações acadêmicas salvas.")}
+function openAssessmentModal(){
+ openModal(`<h3>Nova atividade avaliativa</h3><form onsubmit="saveAssessment(event)"><div class="field"><label>Nome da atividade</label><input name="name" required maxlength="120" placeholder="Ex.: Prova – Unit 3"></div><div class="modal-grid" style="margin-top:12px"><div class="field"><label>Data de aplicação</label><input type="date" name="date" required></div><div class="field"><label>Valor (pontos)</label><input type="number" name="value" min="0" step="0.1" required placeholder="10"></div></div><div class="modal-grid" style="margin-top:12px"><div class="field"><label>Turma</label><select name="class" required>${classOptions()}</select></div><div class="field"><label>Período avaliativo</label><select name="period" required>${periodOptions()}</select></div></div><div class="modal-actions"><button type="button" class="secondary" onclick="closeModal()">Cancelar</button><button type="submit">Cadastrar avaliação</button></div></form>`);
+}
+function saveAssessment(e){e.preventDefault();const f=new FormData(e.target),name=f.get("name").trim(),date=f.get("date"),value=Number(f.get("value")),cl=f.get("class"),period=Number(f.get("period"));if(!name||!date||!cl||!Number.isFinite(value)||value<0||!period)return;db.assessments.push({id:id(),name,date,value,class:cl,period});closeModal();saveDB()}
+function saveParticipationValueFromAssessments(input,period){
+ const raw=String(input.value??"").trim().replace(",",".");
+ const value=Number(raw);
+ if(raw===""||!Number.isFinite(value)||value<0){alert("Informe um valor válido (maior ou igual a zero).");input.value=getParticipationValue(period);return}
+ db.settings.participationValues=db.settings.participationValues||Array(periodCount()).fill(0);
+ db.settings.participationValues[Number(period)-1]=value;
+ db.settings.participationValue=Number(db.settings.participationValues[0]||0);
+ saveDB();
+}
+function openParticipationEntry(cl){
+ const classSelect=document.getElementById("gradesClass");
+ if(classSelect)classSelect.value=cl;
+ renderGradeAssessmentSelect();
+ const assessmentSelect=document.getElementById("gradesAssessment");
+ if(assessmentSelect)assessmentSelect.value="__participation__";
+ showPage("notas");
+ renderGrades();
+}
+function renderAssessments(){
+ const root=document.getElementById("assessmentsTable");if(!root)return;
+ const cl=document.getElementById("assessmentFilter")?.value||"";
+ const selectedPeriod=Number(document.getElementById("assessmentPeriodFilter")?.value||0);
+ const list=db.assessments.filter(a=>(!cl||a.class===cl)&&(!selectedPeriod||(Number(a.period)||1)===selectedPeriod)).sort((a,b)=>a.date.localeCompare(b.date));
+ const visiblePeriods=selectedPeriod?[selectedPeriod]:Array.from({length:periodCount()},(_,i)=>i+1);
+ const participationRows=CLASSES.filter(className=>!cl||className===cl).flatMap(className=>visiblePeriods.map(period=>({className,period})));
+ const hasRows=list.length||participationRows.length;
+ root.innerHTML=`<div class="notice" style="margin-bottom:12px"><b>Participação automática</b><p style="margin:6px 0">Defina um valor diferente para cada período. As alterações também aparecem nas Configurações acadêmicas.</p><div class="toolbar">${Array.from({length:periodCount()},(_,i)=>`<div class="field" style="max-width:200px"><label>${periodLabel(i+1)} · valor (pontos)</label><input type="number" min="0" step="0.01" value="${getParticipationValue(i+1)}" onchange="saveParticipationValueFromAssessments(this,${i+1})"></div>`).join("")}</div></div>${hasRows?`<div class="table-wrap"><table><tr><th>Atividade</th><th>Data</th><th>Valor</th><th>Período</th><th>Turma</th><th>Ações</th></tr>${participationRows.map(p=>`<tr><td><b>Participação</b> <span class="badge">Automática</span></td><td>—</td><td>${getParticipationValue(p.period).toLocaleString("pt-BR")} pts</td><td>${periodLabel(p.period)}</td><td>${esc(p.className)}</td><td><button class="small" onclick="openParticipationEntry('${p.className.replace(/\\/g,"\\\\").replace(/'/g,"\\'")}')">Ver notas calculadas</button></td></tr>`).join("")}${list.map(a=>`<tr><td>${esc(a.name)}</td><td>${dateBR(a.date)}</td><td>${a.value} pts</td><td>${periodLabel(a.period||1)}</td><td>${esc(a.class)}</td><td><div class="inline-actions"><button class="small secondary" onclick="openObservationsModal('assessment','${a.id}')">Observações${a.observations?' •':''}</button><button class="small" onclick="openGradeEntry('${a.id}')">Lançar notas</button><button class="small danger" onclick="deleteAssessment('${a.id}')">Excluir</button></div></td></tr>`).join("")}</table></div>`:'<div class="empty">Nenhuma avaliação cadastrada.</div>'}<p class="muted" style="font-size:12px">A participação é calculada automaticamente para cada turma e período, considerando somente aulas marcadas como avaliativas. Cada “+” recebe a cota integral e cada “~” recebe metade. “−”, “.” e “f” não pontuam na participação. Se a nota continuar zerada, confira se há aulas avaliativas e registros “+” ou “~”.</p>`;
+}
+function deleteAssessment(aid){const a=db.assessments.find(x=>x.id===aid);if(!a||!confirm(`Excluir a avaliação “${a.name}” e as notas lançadas?`))return;db.assessments=db.assessments.filter(x=>x.id!==aid);delete db.grades[aid];saveDB()}
+function renderDiary(){
+ const cl=document.getElementById("diaryClass")?.value||CLASSES[0],root=document.getElementById("diaryTable");if(!root)return;
+ const students=db.students.filter(s=>s.class===cl).sort((a,b)=>a.name.localeCompare(b.name));
+ const selectedPeriod=Number(document.getElementById("diaryPeriod")?.value||0);const lessons=db.lessons.filter(l=>l.class===cl&&(!selectedPeriod||(Number(l.period)||1)===selectedPeriod)).sort((a,b)=>a.date.localeCompare(b.date));
+ if(!students.length){root.innerHTML='<div class="empty">Cadastre estudantes nesta turma para montar a chamada.</div>';return}
+ if(!lessons.length){root.innerHTML='<div class="empty">Nenhuma aula registrada nesta turma. Clique em “Nova aula” para começar.</div>';return}
+ let html='<div class="table-wrap"><table class="attendance-grid"><thead><tr><th class="namecell">Estudante</th>'+lessons.map(l=>`<th>${dateBR(l.date)}<br><small>Aula ${lessons.filter(x=>x.date===l.date).indexOf(l)+1} · ${periodLabel(Number(l.period)||1)}</small>${l.content?`<br><small class="lesson-header-content" title="${esc(l.content)}">${esc(l.content)}</small>`:""}<br><label class="lesson-eval-toggle ${l.evaluative?'lesson-eval-yes':''}"><input type="checkbox" ${l.evaluative?'checked':''} onchange="setLessonEvaluative('${l.id}',this.checked)"> Aula avaliativa</label><br><button class="small secondary no-print" onclick="openObservationsModal('lesson','${l.id}')">Obs.${l.observations?' •':''}</button><button class="small warn no-print" onclick="editLesson('${l.id}')">Editar</button></th>`).join("")+'</tr></thead><tbody>';
+ html+=`<tr class="content-row"><td>Conteúdo da aula</td>${lessons.map(l=>`<td><input aria-label="Conteúdo da aula ${dateBR(l.date)}" value="${esc(l.content)}" onchange="updateLessonContent('${l.id}',this.value)" placeholder="Conteúdo"></td>`).join("")}</tr>`;
+ html+=students.map(s=>`<tr><td class="namecell">${esc(s.name)}</td>${lessons.map(l=>{const code=l.attendance[s.id]||"";return `<td class="num"><button type="button" class="small mark-btn ${attendanceClass(code)}" title="${code?CODES[code]:"Sem registro"} · clique para avançar" onclick="cycleAttendance('${l.id}','${s.id}')">${code||"—"}</button></td>`}).join("")}</tr>`).join("");
+ html+='</tbody></table></div>';
+ root.innerHTML=html;
+}
+function addLesson(){const cl=document.getElementById("diaryClass")?.value||CLASSES[0];if(!db.students.some(s=>s.class===cl)){alert("Cadastre pelo menos um estudante nessa turma antes de registrar a aula.");return}const selected=Number(document.getElementById("diaryPeriod")?.value||1)||1;openModal(`<h3>Registrar nova aula</h3><form onsubmit="saveLesson(event)"><div class="modal-grid"><div class="field"><label>Data da aula</label><input type="date" name="date" required value="${new Date().toISOString().slice(0,10)}"></div><div class="field"><label>Turma</label><select name="class" required>${classOptions(cl)}</select></div></div><div class="field" style="margin-top:12px"><label>Etapa do ano letivo</label><select name="period" required>${periodOptions(selected)}</select></div><div class="field" style="margin-top:12px"><label>Conteúdo lecionado</label><textarea name="content" required placeholder="Descreva o conteúdo trabalhado..."></textarea></div><div class="modal-actions"><button type="button" class="secondary" onclick="closeModal()">Cancelar</button><button type="submit">Criar aula</button></div></form>`)}
+function saveLesson(e){e.preventDefault();const f=new FormData(e.target),date=f.get("date"),cl=f.get("class"),period=Number(f.get("period")),content=f.get("content").trim();db.lessons.push({id:id(),date,class:cl,period,content,attendance:{}});closeModal();document.getElementById("diaryClass").value=cl;saveDB()}
+function editLesson(lid){const l=db.lessons.find(x=>x.id===lid);if(!l)return;openModal(`<h3>Editar aula</h3><form onsubmit="saveLessonEdit(event,'${lid}')"><div class="field"><label>Data</label><input type="date" name="date" required value="${l.date}"></div><div class="field" style="margin-top:12px"><label>Etapa do ano letivo</label><select name="period" required>${periodOptions(Number(l.period)||1)}</select></div><div class="field" style="margin-top:12px"><label>Conteúdo</label><textarea name="content" required>${esc(l.content)}</textarea></div><div class="modal-actions"><button type="button" class="danger" onclick="deleteLesson('${lid}')">Excluir aula</button><button type="button" class="secondary" onclick="closeModal()">Cancelar</button><button type="submit">Salvar</button></div></form>`)}
+function saveLessonEdit(e,lid){e.preventDefault();const l=db.lessons.find(x=>x.id===lid),f=new FormData(e.target),date=f.get("date"),period=Number(f.get("period"));l.date=date;l.period=period;l.content=f.get("content").trim();closeModal();saveDB()}
+function deleteLesson(lid){if(!confirm("Excluir esta aula e todos os registros de presença dela?"))return;db.lessons=db.lessons.filter(l=>l.id!==lid);closeModal();saveDB()}
+function updateLessonContent(lid,value){const l=db.lessons.find(x=>x.id===lid);if(l){l.content=value;persistOnly();renderDiary()}}
+function setLessonEvaluative(lid,checked){const l=db.lessons.find(x=>x.id===lid);if(l){l.evaluative=!!checked;persistOnly();renderDiary()}}
+function attendanceClass(code){return ({".":"code-pres","f":"code-f","+":"code-plus","-":"code-minus","~":"code-half"})[code]||"empty"}
+function cycleAttendance(lid,sid){const order=["",".","f","+","-","~"],l=db.lessons.find(x=>x.id===lid);if(!l)return;const current=l.attendance[sid]||"",next=order[(order.indexOf(current)+1)%order.length];if(next)l.attendance[sid]=next;else delete l.attendance[sid];persistOnly();renderDiary()}
+function persistOnly(){try{localStorage.setItem(KEY,JSON.stringify(db));renderHome()}catch(e){alert("Não foi possível salvar. Exporte um backup e verifique o espaço disponível no navegador.")}}
+function openGradeEntry(aid){const a=db.assessments.find(x=>x.id===aid);if(!a)return;document.getElementById("gradesClass").value=a.class;renderGradeAssessmentSelect();document.getElementById("gradesAssessment").value=aid;showPage("notas");renderGrades()}
+function calcParticipation(cl,period,studentId){
+ const value=getParticipationValue(period);
+ const lessons=db.lessons.filter(l=>l.class===cl&&(Number(l.period)||1)===Number(period)&&l.evaluative===true);
+ const codes=lessons.map(l=>String(l.attendance?.[studentId]||"").trim());
+ const plus=codes.filter(c=>c==="+").length,half=codes.filter(c=>c==="~").length,minus=codes.filter(c=>c==="-").length;
+ const score=lessons.length&&value>0?(value/lessons.length)*plus+(value/lessons.length)*(half/2):0;
+ return {score,lessonCount:lessons.length,plus,half,minus};
+}
+function renderGrades(){
+ const cl=document.getElementById("gradesClass")?.value||CLASSES[0];renderGradeAssessmentSelect();const aid=document.getElementById("gradesAssessment")?.value,root=document.getElementById("gradesTable");if(!root)return;
+ const students=db.students.filter(x=>x.class===cl).sort((x,y)=>x.name.localeCompare(y.name));
+ if(!students.length){root.innerHTML='<div class="empty">Nenhum estudante cadastrado nesta turma.</div>';return}
+ if(aid==="__participation__"){
+  const count=periodCount(),headers=Array.from({length:count},(_,i)=>`<th class="num">${periodLabel(i+1)}</th>`).join("");
+  root.innerHTML=`<div class="notice"><b>Participação · ${esc(cl)}</b> · Os valores máximos são definidos separadamente para cada período. O cálculo considera somente as aulas desta turma marcadas como avaliativas em cada período.</div><div class="table-wrap"><table><tr><th>Estudante</th>${headers}</tr>${students.map(st=>`<tr><td>${esc(st.name)}</td>${Array.from({length:count},(_,i)=>{const r=calcParticipation(cl,i+1,st.id);return `<td class="num"><b>${r.score.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})} / ${getParticipationValue(i+1).toLocaleString("pt-BR")}</b><br><small class="muted">${r.lessonCount?`${r.plus} × + · ${r.half} × ~ · ${r.minus} × − · ${r.lessonCount} aulas avaliativas`:"Nenhuma aula avaliativa marcada"}</small></td>`}).join("")}</tr>`).join("")}</table></div><p class="muted" style="font-size:12px">Fórmula: (valor da participação ÷ aulas avaliativas) × quantidade de “+” + (valor da participação ÷ aulas avaliativas) × (quantidade de “~” ÷ 2). O símbolo “−” recebe zero ponto.</p>`;
+  return;
+ }
+ const a=db.assessments.find(x=>x.id===aid);
+ if(!a){root.innerHTML='<div class="empty">Cadastre uma avaliação para esta turma na aba Avaliações ou selecione Participação.</div>';return}
+ const grades=db.grades[aid]||{};
+ root.innerHTML=`<div class="notice"><b>${esc(a.name)}</b> · ${dateBR(a.date)} · Valor máximo: ${a.value} pontos. Notas acima do valor máximo serão recusadas.</div><div class="table-wrap"><table><tr><th>Estudante</th><th class="num">Nota obtida</th><th class="num">Situação</th></tr>${students.map(s=>`<tr><td>${esc(s.name)}</td><td class="num"><input class="cell-input grade-input" type="number" min="0" max="${a.value}" step="0.01" value="${grades[s.id]??""}" onchange="saveGrade('${aid}','${s.id}',this.value)" placeholder="Nota"></td><td class="num">${grades[s.id]!==undefined?`<span class="badge">${Number(grades[s.id]).toLocaleString("pt-BR")} / ${a.value}</span>`:'<span class="muted">Pendente</span>'}</td></tr>`).join("")}</table></div>`;
+}
+function saveGrade(aid,sid,value){const a=db.assessments.find(x=>x.id===aid);if(!a)return;if(value===""){if(db.grades[aid])delete db.grades[aid][sid]}else{const n=Number(value);if(!Number.isFinite(n)||n<0||n>a.value){alert(`Informe uma nota entre 0 e ${a.value}.`);renderGrades();return}db.grades[aid]=db.grades[aid]||{};db.grades[aid][sid]=n}persistOnly();renderGrades()}
+function renderReports(){
+ const cl=document.getElementById("reportClass")?.value||CLASSES[0],root=document.getElementById("reportsTable");if(!root)return;
+ const students=db.students.filter(s=>s.class===cl).sort((a,b)=>a.name.localeCompare(b.name)),lessons=db.lessons.filter(l=>l.class===cl);if(!students.length){root.innerHTML='<div class="empty">Nenhum estudante cadastrado nesta turma.</div>';return}
+ const count=periodCount(),assessments=db.assessments.filter(a=>a.class===cl);
+ const headers=Array.from({length:count},(_,i)=>`<th class="num">${periodLabel(i+1)}<br><small>Nota / Situação</small></th>`).join("");
+ root.innerHTML=`<div class="table-wrap"><table><tr><th>Estudante</th><th class="num">Presenças</th><th class="num">Faltas</th><th class="num">Frequência</th>${headers}</tr>${students.map(st=>{const codes=lessons.map(l=>l.attendance[st.id]).filter(Boolean),pres=codes.filter(x=>[".","+","-","~"].includes(x)).length,falt=codes.filter(x=>x==="f").length,total=pres+falt,frequency=total?pres/total*100:0;const cells=Array.from({length:count},(_,i)=>{const period=i+1,items=assessments.filter(a=>(Number(a.period)||1)===period),manualEarned=items.reduce((sum,a)=>sum+(db.grades[a.id]?.[st.id]!==undefined?Number(db.grades[a.id][st.id]):0),0),participation=calcParticipation(cl,period,st.id),participationEnabled=getParticipationValue(period)>0,earned=manualEarned+participation.score,configured=Number(db.settings.periodValues?.[i]||0),threshold=configured*.6,complete=items.every(a=>db.grades[a.id]?.[st.id]!==undefined)&&(!participationEnabled||participation.lessonCount>0),hasAny=items.length>0||participation.lessonCount>0;let status="Sem avaliações";if(hasAny||participationEnabled)status=!(configured>0)?"Configure o valor":(complete?(earned>=threshold?"Média atingida":"Em recuperação"):(participationEnabled&&participation.lessonCount===0?"Marque aulas avaliativas":"Em andamento"));return `<td class="num"><b>${hasAny?earned.toFixed(2).replace(".",","):"—"} / ${configured.toLocaleString("pt-BR")}</b><br><span class="badge ${complete&&configured>0&&earned<threshold?"status-f":""}">${status}</span><br><small class="muted">Mínimo: ${threshold.toLocaleString("pt-BR",{maximumFractionDigits:2})}</small></td>`}).join("");return `<tr><td>${esc(st.name)}</td><td class="num">${pres}</td><td class="num">${falt}</td><td class="num">${total?frequency.toFixed(1).replace(".",",")+"%":"—"}</td>${cells}</tr>`}).join("")}</table></div><p class="muted" style="font-size:12px">A situação do período só é definida quando todas as avaliações cadastradas para aquele período tiverem nota lançada. A média mínima corresponde a 60% do valor configurado. A soma inclui as avaliações lançadas e a participação calculada automaticamente. O valor da participação deve estar contemplado no total do período configurado. Para frequência, “.”, “+”, “−” e “~” contam como presença; somente “f” conta como falta.</p>`;
+}
+function csvEscape(value){
+ const text=String(value??"");
+ return /[;"\r\n]/.test(text)?'"'+text.replace(/"/g,'""')+'"':text;
+}
+function downloadSpreadsheet(rows,filename){
+ if(!rows||!rows.length){alert("Não há dados para exportar com os filtros selecionados.");return}
+ const csv="\uFEFF"+rows.map(row=>row.map(csvEscape).join(";")).join("\r\n");
+ const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
+ const url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download=filename;a.style.display="none";document.body.appendChild(a);a.click();a.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function safeFilePart(value){return String(value||"todos").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-zA-Z0-9_-]+/g,"_").replace(/^_+|_+$/g,"").toLowerCase()||"todos"}
+function exportDiarySheet(){
+ const cl=document.getElementById("diaryClass")?.value||CLASSES[0],selectedPeriod=Number(document.getElementById("diaryPeriod")?.value||0);
+ const students=db.students.filter(s=>s.class===cl).sort((a,b)=>a.name.localeCompare(b.name));
+ const lessons=db.lessons.filter(l=>l.class===cl&&(!selectedPeriod||(Number(l.period)||1)===selectedPeriod)).sort((a,b)=>a.date.localeCompare(b.date));
+ const rows=[["Turma","Etapa","Estudante","Data da aula","Conteúdo","Aula avaliativa","Registro","Descrição do registro","Observações da aula"]];
+ for(const lesson of lessons){
+  for(const student of students){
+   const code=String(lesson.attendance?.[student.id]||"");
+   rows.push([cl,periodLabel(Number(lesson.period)||1),student.name,dateBR(lesson.date),lesson.content||"",lesson.evaluative?"Sim":"Não",code||"—",code?(CODES[code]||code):"Sem registro",lesson.observations||""]);
+  }
+ }
+ const periodPart=selectedPeriod?safeFilePart(periodLabel(selectedPeriod)):"todas_etapas";
+ downloadSpreadsheet(rows,`diario_${safeFilePart(cl)}_${periodPart}.csv`);
+}
+function exportAssessmentsSheet(){
+ const cl=document.getElementById("assessmentFilter")?.value||"";
+ const selectedPeriod=Number(document.getElementById("assessmentPeriodFilter")?.value||0);
+ const classes=cl?[cl]:CLASSES;
+ const rows=[["Turma","Etapa","Avaliação","Tipo","Data","Valor máximo","Estudante","Nota obtida","Aulas avaliativas","Registros +","Registros ~","Observações"]];
+ for(const className of classes){
+  const students=db.students.filter(s=>s.class===className).sort((a,b)=>a.name.localeCompare(b.name));
+  const assessments=db.assessments.filter(a=>a.class===className&&(!selectedPeriod||(Number(a.period)||1)===selectedPeriod)).sort((a,b)=>a.date.localeCompare(b.date));
+  for(const a of assessments){
+   for(const student of students){
+    const grade=db.grades[a.id]?.[student.id];
+    rows.push([className,periodLabel(Number(a.period)||1),a.name,"Manual",dateBR(a.date),a.value,student.name,grade===undefined?"":grade,"","","",a.observations||""]);
+   }
+  }
+  const periods=selectedPeriod?[selectedPeriod]:Array.from({length:periodCount()},(_,i)=>i+1);
+  for(const period of periods){
+   const value=getParticipationValue(period);
+   for(const student of students){
+    const calc=calcParticipation(className,period,student.id);
+    rows.push([className,periodLabel(period),"Participação","Automática","",value,student.name,calc.score.toFixed(2).replace(".",","),calc.lessonCount,calc.plus,calc.half,""]);
+   }
+  }
+ }
+ const classPart=cl?safeFilePart(cl):"todas_turmas";
+ const periodPart=selectedPeriod?safeFilePart(periodLabel(selectedPeriod)):"todas_etapas";
+ downloadSpreadsheet(rows,`avaliacoes_${classPart}_${periodPart}.csv`);
+}
+function buildReportExportRows(className){
+ const students=db.students.filter(s=>s.class===className).sort((a,b)=>a.name.localeCompare(b.name));
+ const lessons=db.lessons.filter(l=>l.class===className);
+ const assessments=db.assessments.filter(a=>a.class===className);
+ const count=periodCount();
+ const headers=["Turma","Estudante","Presenças","Faltas","Frequência (%)"];
+ for(let i=1;i<=count;i++)headers.push(`${periodLabel(i)} - Nota obtida`,`${periodLabel(i)} - Valor total`,`${periodLabel(i)} - Mínimo (60%)`,`${periodLabel(i)} - Situação`);
+ const rows=[headers];
+ for(const student of students){
+  const codes=lessons.map(l=>l.attendance?.[student.id]).filter(Boolean);
+  const pres=codes.filter(x=>[".","+","-","~"].includes(x)).length;
+  const falt=codes.filter(x=>x==="f").length,total=pres+falt;
+  const row=[className,student.name,pres,falt,total?(pres/total*100).toFixed(1).replace(".",","):""];
+  for(let i=0;i<count;i++){
+   const period=i+1,items=assessments.filter(a=>(Number(a.period)||1)===period);
+   const manualEarned=items.reduce((sum,a)=>sum+(db.grades[a.id]?.[student.id]!==undefined?Number(db.grades[a.id][student.id]):0),0);
+   const participation=calcParticipation(className,period,student.id);
+   const participationEnabled=getParticipationValue(period)>0;
+   const earned=manualEarned+participation.score;
+   const configured=Number(db.settings.periodValues?.[i]||0),threshold=configured*.6;
+   const complete=items.every(a=>db.grades[a.id]?.[student.id]!==undefined)&&(!participationEnabled||participation.lessonCount>0);
+   const hasAny=items.length>0||participation.lessonCount>0;
+   let status="Sem avaliações";
+   if(hasAny||participationEnabled)status=!(configured>0)?"Configure o valor":(complete?(earned>=threshold?"Média atingida":"Em recuperação"):(participationEnabled&&participation.lessonCount===0?"Marque aulas avaliativas":"Em andamento"));
+   row.push(hasAny?earned.toFixed(2).replace(".",","):"",configured,threshold.toFixed(2).replace(".",","),status);
+  }
+  rows.push(row);
+ }
+ return rows;
+}
+function exportReportsSheet(){
+ const cl=document.getElementById("reportClass")?.value||CLASSES[0];
+ downloadSpreadsheet(buildReportExportRows(cl),`relatorio_${safeFilePart(cl)}.csv`);
+}
+function exportBackup(){const blob=new Blob([JSON.stringify({app:"DiarioEscolarOffline",version:1,exportedAt:new Date().toISOString(),data:db},null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`backup-diario-escolar-${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(a.href)}
+function importBackup(e){const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const obj=JSON.parse(reader.result),data=obj.data||obj;if(!data.students||!data.lessons||!data.assessments)throw Error("Formato inválido");if(!confirm("Restaurar este backup substituirá os dados atuais deste navegador. Deseja continuar?"))return;db=data;saveDB();alert("Backup restaurado com sucesso.")}catch(err){alert("Não foi possível restaurar: arquivo inválido ou incompatível.")}e.target.value=""};reader.readAsText(file)}
+renderAll();
+</script>
+</body>
+</html>
